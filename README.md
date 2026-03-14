@@ -1,18 +1,20 @@
-# TruthLens 🔍
+# TruthLens
 
 AI-Powered Fake News Detector - Detect clickbait, emotional manipulation, and assess news credibility using AI/NLP.
+
+**Developer**: Vincent Kaisang
 
 ![TruthLens](https://img.shields.io/badge/TruthLens-Fake%20News%20Detector-blue) ![React](https://img.shields.io/badge/React-19.x-blue) ![Node.js](https://img.shields.io/badge/Node.js-Express-green) ![OpenAI](https://img.shields.io/badge/OpenAI-GPT-orange)
 
 ## Features
 
-- 🎯 **Clickbait Detection** - Identifies sensationalist phrases and clickbait patterns
-- 💭 **Emotion Analysis** - Detects emotional manipulation (fear, anger, surprise, etc.)
-- 🤖 **AI-Powered** - Uses OpenAI GPT for advanced credibility analysis
-- 📊 **Credibility Score** - Clear 0-100 score with color-coded indicators
-- 📜 **History** - Stores recent analyses for quick reference
-- 🌙 **Dark Mode** - Toggle between light and dark themes
-- 📱 **Responsive** - Works on desktop and mobile
+- **Clickbait Detection** - Identifies sensationalist phrases and clickbait patterns
+- **Emotion Analysis** - Detects emotional manipulation (fear, anger, surprise, etc.)
+- **AI-Powered** - Uses OpenAI GPT for advanced credibility analysis
+- **Credibility Score** - Clear 0-100 score with color-coded indicators
+- **History** - Stores recent analyses for quick reference
+- **Dark Mode** - Toggle between light and dark themes
+- **Responsive** - Works on desktop and mobile
 
 ## Tech Stack
 
@@ -154,9 +156,9 @@ Health check endpoint.
 
 ## Sample Headlines to Test
 
-- ✅ "Study: Regular exercise improves heart health, according to new research"
-- ⚠️ "Scientists discover miracle cure doctors hide!"
-- ❌ "You won't BELIEVE what happened next! SHOCKING!"
+- [PASS] "Study: Regular exercise improves heart health, according to new research"
+- [WARN] "Scientists discover miracle cure doctors hide!"
+- [FAIL] "You won't BELIEVE what happened next! SHOCKING!"
 
 ## How It Works
 
@@ -173,12 +175,12 @@ Health check endpoint.
 
 ## Portfolio Highlights
 
-- ✅ AI + Rule-based hybrid analysis
-- ✅ Emotion detection for headlines
-- ✅ Structured JSON backend
-- ✅ Full-stack React + Node app
-- ✅ Production-ready structure
-- ✅ Easy to extend
+- [x] AI + Rule-based hybrid analysis
+- [x] Emotion detection for headlines
+- [x] Structured JSON backend
+- [x] Full-stack React + Node app
+- [x] Production-ready structure
+- [x] Easy to extend
 
 ## Future Enhancements
 
