@@ -1,0 +1,22 @@
+{
+  "name": "truthlens",
+  "version": "1.0.0",
+  "description": "TruthLens - AI-Powered Fake News Detector",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "server": "cd server && npm start",
+    "client": "cd client && npm start",
+    "dev": "npm run server",
+    "build": "cd client && npm run build",
+    "start": "npm run server"
+  },
+  "keywords": ["fake-news", "ai", "nlp", "news", "detector", "clickbait"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}
