@@ -86,6 +86,20 @@ function App() {
 
   return (
     <div className={`app ${darkMode ? 'dark-mode' : ''}`}>
+      {/* Background Elements */}
+      <div className="background-elements">
+        <div className="bg-element"></div>
+        <div className="bg-element"></div>
+        <div className="bg-element"></div>
+        <div className="bg-element"></div>
+        <div className="bg-element">
+          <span className="node"></span>
+          <span className="node"></span>
+          <span className="node"></span>
+          <span className="node"></span>
+        </div>
+      </div>
+      
       <div className="container">
         <header className="header">
           <div className="logo">
