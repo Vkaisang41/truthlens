@@ -4,7 +4,7 @@
   directory = "client"
 
 [build.environment]
-  REACT_APP_API_URL = "https://your-backend-api.render.com"
+  REACT_APP_API_URL = "https://truthlens-api-n3cl.onrender.com"
 
 [[redirects]]
   from = "/*"
