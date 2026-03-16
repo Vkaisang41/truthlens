@@ -11,12 +11,20 @@
     "build": "cd client && npm run build",
     "start": "npm run server"
   },
-  "keywords": ["fake-news", "ai", "nlp", "news", "detector", "clickbait"],
+  "keywords": [
+    "fake-news",
+    "ai",
+    "nlp",
+    "news",
+    "detector",
+    "clickbait"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "qrcode": "^1.5.4"
   }
 }
