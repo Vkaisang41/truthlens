@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 
 function App() {
@@ -8,6 +8,45 @@ function App() {
   const [error, setError] = useState('');
   const [history, setHistory] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    { from: 'bot', text: 'Hello! I\'m the TruthLens AI Assistant. Ask me anything about how to use the app or how fake news detection works!' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatEndRef = useRef(null);
+
+  const scrollToChat = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToChat();
+  }, [chatMessages]);
+
+  const sendChatMessage = async () => {
+    if (!chatInput.trim() || chatLoading) return;
+    
+    const userMessage = chatInput.trim();
+    setChatInput('');
+    setChatMessages(prev => [...prev, { from: 'user', text: userMessage }]);
+    setChatLoading(true);
+    
+    try {
+      const res = await fetch('http://localhost:5000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage })
+      });
+      
+      const data = await res.json();
+      setChatMessages(prev => [...prev, { from: 'bot', text: data.reply }]);
+    } catch (err) {
+      setChatMessages(prev => [...prev, { from: 'bot', text: 'Sorry, I couldn\'t process your message. Please try again.' }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   const analyzeHeadline = async () => {
     if (!headline.trim()) {
@@ -111,7 +150,13 @@ function App() {
             className="theme-toggle" 
             onClick={() => setDarkMode(!darkMode)}
           >
-            {darkMode ? '☀️ Light' : '🌙 Dark'}
+            {darkMode ? 'Light' : 'Dark'}
+          </button>
+          <button 
+            className="chat-toggle" 
+            onClick={() => setShowChat(!showChat)}
+          >
+            {showChat ? 'Close' : 'Chat'}
           </button>
         </header>
 
@@ -260,6 +305,36 @@ function App() {
             </div>
           </section>
         </main>
+
+        {/* Chat Widget */}
+        {showChat && (
+          <div className="chat-widget">
+            <div className="chat-header">
+              <span>AI Assistant</span>
+              <button onClick={() => setShowChat(false)}>X</button>
+            </div>
+            <div className="chat-messages">
+              {chatMessages.map((msg, index) => (
+                <div key={index} className={`chat-message ${msg.from}`}>
+                  {msg.text}
+                </div>
+              ))}
+              {chatLoading && <div className="chat-message bot">Thinking...</div>}
+              <div ref={chatEndRef} />
+            </div>
+            <div className="chat-input">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+                placeholder="Ask me anything..."
+                disabled={chatLoading}
+              />
+              <button onClick={sendChatMessage} disabled={chatLoading}>Send</button>
+            </div>
+          </div>
+        )}
 
         <footer className="footer">
           <p>TruthLens - Fighting misinformation with AI</p>

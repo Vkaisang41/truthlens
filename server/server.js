@@ -177,6 +177,74 @@ app.post("/analyze", async (req, res) => {
   }
 });
 
+// AI Chatbot endpoint
+app.post("/chat", async (req, res) => {
+  const { message } = req.body;
+  
+  if (!message || message.trim() === "") {
+    return res.status(400).json({ error: "Message is required" });
+  }
+  
+  console.log(`Chat message: ${message}`);
+  
+  try {
+    // If OpenAI is configured, use it for smart responses
+    if (openai && process.env.OPENAI_API_KEY) {
+      const response = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: `You are TruthLens AI Assistant, a helpful chatbot for the TruthLens fake news detector app. 
+You help users understand how to use the app, explain how fake news detection works, and answer questions about news credibility.
+
+Key features of TruthLens:
+- Analyzes headlines for clickbait patterns
+- Detects emotional manipulation
+- Uses AI (GPT) for advanced analysis when API key is configured
+- Provides a credibility score from 0-100
+- Shows issues detected and emotions found
+
+Keep responses friendly, helpful, and concise. Maximum 2-3 sentences.`
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 300
+      });
+      
+      const reply = response.data.choices[0].message.content;
+      res.json({ reply, timestamp: new Date().toISOString() });
+    } else {
+      // Fallback responses without OpenAI
+      const lowerMessage = message.toLowerCase();
+      let reply = "";
+      
+      if (lowerMessage.includes("how") && (lowerMessage.includes("use") || lowerMessage.includes("work"))) {
+        reply = "Simply paste any news headline or article title in the input box and click 'Analyze Headline'. You'll get a credibility score from 0-100 and details about any issues detected!";
+      } else if (lowerMessage.includes("score") || lowerMessage.includes("credibility")) {
+        reply = "The credibility score ranges from 0-100. Scores 80-100 mean the headline is likely credible, 50-79 is moderate risk, and 0-49 means it's likely fake or clickbait.";
+      } else if (lowerMessage.includes("what") && lowerMessage.includes("fake") || lowerMessage.includes("detect")) {
+        reply = "TruthLens detects clickbait phrases, emotional manipulation (fear, anger, surprise), sensationalist language, and lack of credible sources in headlines.";
+      } else if (lowerMessage.includes("hello") || lowerMessage.includes("hi") || lowerMessage.includes("hey")) {
+        reply = "Hello! I'm the TruthLens AI Assistant. Ask me anything about how to use the app or how fake news detection works!";
+      } else if (lowerMessage.includes("thank")) {
+        reply = "You're welcome! Feel free to ask if you have any more questions about using TruthLens.";
+      } else {
+        reply = "I'm here to help! You can ask me things like 'How do I use this app?' or 'What does the credibility score mean?' to learn more about TruthLens.";
+      }
+      
+      res.json({ reply, timestamp: new Date().toISOString() });
+    }
+  } catch (err) {
+    console.error("Chat error:", err);
+    res.status(500).json({ error: "Chat failed. Please try again." });
+  }
+});
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.json({ 
