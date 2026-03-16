@@ -29,16 +29,22 @@ const CLICKBAIT_WORDS = [
   'what happened next', 'broke the internet', 'viral',
   'must-see', 'jaw-dropping', 'incredible', 'amazing',
   'this one trick', 'doctors hate', 'secret revealed',
-  'will blow your mind', 'breaking', 'exclusive'
+  'will blow your mind', 'breaking', 'exclusive',
+  'urgent', 'warned', 'exposed', 'scandal', 'lie',
+  'fake', 'false', 'hoax', 'conspiracy', 'cover-up',
+  'they don\'t want you to know', 'censored', 'hidden',
+  'shocking truth', 'you need to see this', 'click here',
+  'act now', 'limited time', 'don\'t miss', 'final warning',
+  'dead', 'died', 'killed', 'murder', 'missing'
 ];
 
 // Emotional manipulation triggers
 const EMOTIONAL_TRIGGERS = {
-  fear: ['hide', 'danger', 'warning', 'threat', 'scary', 'terrifying'],
-  anger: ['outrage', 'furious', 'angry', 'hate', 'despise'],
-  sadness: ['tragic', 'devastating', 'heartbreaking', 'tragedy'],
-  surprise: ['shocked', 'unexpected', 'sudden', 'bombshell'],
-  excitement: ['amazing', 'incredible', 'fantastic', 'wonderful']
+  fear: ['hide', 'danger', 'warning', 'threat', 'scary', 'terrifying', 'dead', 'died', 'killed', 'murder', 'warning', 'alert', 'urgent', 'emergency', 'crisis', 'risk', 'fatal'],
+  anger: ['outrage', 'furious', 'angry', 'hate', 'despise', 'war', 'attack', 'enemy', 'traitor'],
+  sadness: ['tragic', 'devastating', 'heartbreaking', 'tragedy', 'suffer', 'victim', 'tragedy'],
+  surprise: ['shocked', 'unexpected', 'sudden', 'bombshell', 'breaking', 'just in'],
+  excitement: ['amazing', 'incredible', 'fantastic', 'wonderful', 'breakthrough', 'revolutionary']
 };
 
 // Analyze headline for basic patterns
@@ -64,8 +70,8 @@ function analyzeHeadlineBasic(headline) {
     });
   });
   
-  // Check for lack of source - only flag if other issues exist
-  if (issues.length > 0 && !headline.match(/\b(according to|reported|study|research|official|from|by)\b/i)) {
+  // Check for lack of source - flag regardless of other issues
+  if (!headline.match(/\b(according to|reported|study|research|official|from|by|said|says|announced|confirmed|published|journal|university|college)\b/i)) {
     issues.push("No credible source cited");
   }
   
@@ -78,6 +84,19 @@ function analyzeHeadlineBasic(headline) {
   if (headline.match(/[!]{2,}|[?]{2,}|[...]{2,}/)) {
     issues.push("Excessive punctuation detected");
   }
+  
+  // Check for question marks in suspicious contexts
+  if (headline.includes('?') && lowerHeadline.includes('you')) {
+    issues.push("Leading question detected - common in clickbait");
+  }
+  
+  // Check for absolute words (often indicate fake news)
+  const absoluteWords = ['always', 'never', 'everyone', 'nobody', 'all', 'none', '100%', 'guaranteed'];
+  absoluteWords.forEach(word => {
+    if (lowerHeadline.includes(word)) {
+      issues.push(`Absolute word detected: "${word}" - often indicates unreliable content`);
+    }
+  });
   
   return { issues, emotions };
 }
@@ -150,10 +169,27 @@ app.post("/analyze", async (req, res) => {
       issues = [...new Set(issues)];
       emotions = [...new Set([...basicEmotions, ...(aiAnalysis.emotions || [])])];
     } else {
-      // Use basic analysis only
-      credibilityScore = basicIssues.length > 0 ? 
-        Math.max(20, 80 - (basicIssues.length * 15)) : 75;
-      issues = basicIssues.length > 0 ? basicIssues : ["No obvious issues detected"];
+      // Use basic analysis only - more strict scoring
+      const issueCount = basicIssues.length;
+      if (issueCount === 0) {
+        // No issues detected - but verify if headline looks trustworthy
+        if (headline.match(/\b(study|research|university|scientist|according to|official|published)\b/i)) {
+          credibilityScore = 85; // Likely credible with source
+        } else if (headline.length < 20) {
+          credibilityScore = 60; // Too short to verify
+        } else {
+          credibilityScore = 50; // Neutral - no issues but no source either
+        }
+      } else if (issueCount === 1) {
+        credibilityScore = 55;
+      } else if (issueCount === 2) {
+        credibilityScore = 40;
+      } else if (issueCount === 3) {
+        credibilityScore = 25;
+      } else {
+        credibilityScore = 15;
+      }
+      issues = basicIssues;
       emotions = basicEmotions.length > 0 ? basicEmotions : ["neutral"];
     }
     
