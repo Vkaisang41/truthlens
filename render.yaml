@@ -3,8 +3,8 @@ services:
     name: truthlens-api
     env: node
     region: oregon
-    buildCommand: npm install && cd client && npm install && npm run build
-    startCommand: cd server && npm start
+    buildCommand: npm install && npm install --prefix server
+    startCommand: npm start --prefix server
     repo: https://github.com/Vkaisang41/truthlens
     branch: master
     envVars:
