@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 
+// API URL - defaults to localhost in development
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 function App() {
   const [headline, setHeadline] = useState('');
   const [result, setResult] = useState(null);
@@ -33,7 +36,7 @@ function App() {
     setChatLoading(true);
     
     try {
-      const res = await fetch('http://localhost:5000/chat', {
+      const res = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMessage })
@@ -62,7 +65,7 @@ function App() {
     const timeoutId = setTimeout(() => controller.abort(), 15000);
     
     try {
-      const res = await fetch('http://localhost:5000/analyze', {
+      const res = await fetch(`${API_URL}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ headline }),

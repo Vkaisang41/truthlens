@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = "client/build"
+  directory = "client"
+
+[build.environment]
+  REACT_APP_API_URL = "https://your-backend-api.render.com"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
