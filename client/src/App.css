@@ -869,6 +869,25 @@
   border-color: var(--primary-color);
 }
 
+.nav-link {
+  position: absolute;
+  right: 180px;
+  top: 32px;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: white;
+  text-decoration: none;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
 .chat-widget {
   position: fixed;
   bottom: 20px;

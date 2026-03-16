@@ -1,56 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import News from './News';
 import './App.css';
 
 // API URL - defaults to localhost in development
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-// Sample news headlines by category
-const SAMPLE_NEWS = {
-  politics: [
-    "President announces new economic policy for 2025",
-    "Senate passes controversial healthcare bill",
-    "Election results show unexpected turn in swing states",
-    "Political scandal emerges involving senior officials",
-    "New trade agreement signed between major nations"
-  ],
-  football: [
-    "Champions League final scheduled for June",
-    "Star player transfers to rival club in record deal",
-    "National team announces squad for upcoming tournament",
-    "Controversial refereeing decision sparks debate",
-    "Legendary coach announces retirement after successful career"
-  ],
-  technology: [
-    "Tech giant unveils revolutionary AI assistant",
-    "Major security breach affects millions of users",
-    "New smartphone features groundbreaking battery technology",
-    "Startup raises billions in latest funding round",
-    "Scientists develop quantum computer breakthrough"
-  ],
-  business: [
-    "Stock market reaches all-time high",
-    "Major company announces massive layoffs",
-    "Central bank adjusts interest rates",
-    "Merger between industry giants approved",
-    "Entrepreneur becomes youngest billionaire"
-  ],
-  health: [
-    "New study reveals benefits of daily exercise",
-    "Breakthrough treatment shows promise for cancer patients",
-    "Health officials warn about seasonal illness",
-    "Mental health awareness campaign launches nationwide",
-    "Scientists discover new vaccine for rare disease"
-  ],
-  entertainment: [
-    "Blockbuster movie breaks box office records",
-    "Award-winning singer announces world tour",
-    "Streaming platform reveals hit series renewal",
-    "Celebrity couple confirms relationship at event",
-    "Classic band reunites for anniversary tour"
-  ]
-};
-
 function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/news" element={<News />} />
+      </Routes>
+    </Router>
+  );
+}
+
+function LandingPage() {
   const [headline, setHeadline] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -64,8 +31,6 @@ function App() {
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef(null);
-  const [showNews, setShowNews] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('politics');
 
   const scrollToChat = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -108,7 +73,6 @@ function App() {
     setLoading(true);
     setError('');
     
-    // Create abort controller for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
     
@@ -137,9 +101,9 @@ function App() {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 80) return '#10b981'; // green
-    if (score >= 50) return '#f59e0b'; // yellow
-    return '#ef4444'; // red
+    if (score >= 80) return '#10b981';
+    if (score >= 50) return '#f59e0b';
+    return '#ef4444';
   };
 
   const getScoreLabel = (score) => {
@@ -176,7 +140,6 @@ function App() {
 
   return (
     <div className={`app ${darkMode ? 'dark-mode' : ''}`}>
-      {/* Background Elements */}
       <div className="background-elements">
         <div className="bg-element"></div>
         <div className="bg-element"></div>
@@ -209,6 +172,7 @@ function App() {
           >
             {showChat ? 'Close' : 'Chat'}
           </button>
+          <Link to="/news" className="nav-link">News Feed</Link>
         </header>
 
         <main className="main-content">
@@ -297,7 +261,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Detailed Proof Section */}
               {result.proof && result.proof.length > 0 && (
                 <div className="proof-section">
                   <h3>Detailed Evidence</h3>
@@ -350,50 +313,6 @@ function App() {
             </section>
           )}
 
-          <section className="news-section">
-            <div className="news-header">
-              <h2>Sample News Headlines</h2>
-              <button 
-                className="news-toggle"
-                onClick={() => setShowNews(!showNews)}
-              >
-                {showNews ? 'Hide News' : 'Show News'}
-              </button>
-            </div>
-            
-            {showNews && (
-              <div className="news-categories">
-                <div className="category-tabs">
-                  {Object.keys(SAMPLE_NEWS).map(cat => (
-                    <button
-                      key={cat}
-                      className={`category-tab ${selectedCategory === cat ? 'active' : ''}`}
-                      onClick={() => setSelectedCategory(cat)}
-                    >
-                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                    </button>
-                  ))}
-                </div>
-                
-                <div className="news-list">
-                  {SAMPLE_NEWS[selectedCategory].map((news, index) => (
-                    <div 
-                      key={index} 
-                      className="news-item"
-                      onClick={() => {
-                        setHeadline(news);
-                        analyzeHeadline();
-                      }}
-                    >
-                      <span className="news-text">{news}</span>
-                      <span className="analyze-hint">Click to analyze</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </section>
-
           <section className="features-section">
             <h2>How It Works</h2>
             <div className="features-grid">
@@ -421,32 +340,37 @@ function App() {
           </section>
         </main>
 
-        {/* Chat Widget */}
         {showChat && (
-          <div className="chat-widget">
-            <div className="chat-header">
-              <span>AI Assistant</span>
-              <button onClick={() => setShowChat(false)}>X</button>
-            </div>
-            <div className="chat-messages">
-              {chatMessages.map((msg, index) => (
-                <div key={index} className={`chat-message ${msg.from}`}>
-                  {msg.text}
-                </div>
-              ))}
-              {chatLoading && <div className="chat-message bot">Thinking...</div>}
-              <div ref={chatEndRef} />
-            </div>
-            <div className="chat-input">
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
-                placeholder="Ask me anything..."
-                disabled={chatLoading}
-              />
-              <button onClick={sendChatMessage} disabled={chatLoading}>Send</button>
+          <div className="chat-overlay" onClick={() => setShowChat(false)}>
+            <div className="chat-container" onClick={e => e.stopPropagation()}>
+              <div className="chat-header">
+                <h3>TruthLens AI Assistant</h3>
+                <button className="close-chat" onClick={() => setShowChat(false)}>×</button>
+              </div>
+              <div className="chat-messages">
+                {chatMessages.map((msg, index) => (
+                  <div key={index} className={`chat-message ${msg.from}`}>
+                    <div className="message-content">{msg.text}</div>
+                  </div>
+                ))}
+                {chatLoading && (
+                  <div className="chat-message bot">
+                    <div className="message-content">Thinking...</div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
+              <div className="chat-input-container">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+                  placeholder="Ask about fake news detection..."
+                  className="chat-input"
+                />
+                <button onClick={sendChatMessage} className="send-btn" disabled={chatLoading}>Send</button>
+              </div>
             </div>
           </div>
         )}
