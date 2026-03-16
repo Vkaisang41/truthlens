@@ -6,7 +6,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const isProduction = process.env.NODE_ENV === 'production' || process.argv.includes('--production');
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER || process.argv.includes('--production');
 
 // Middleware
 app.use(cors());
@@ -369,10 +369,16 @@ app.get("/health", (req, res) => {
 
 // Serve static files in production (catch-all route)
 if (isProduction) {
-  app.use(express.static(path.join(__dirname, '../client/build')));
+  // Check if running on Render or local
+  const isRender = process.env.RENDER !== undefined;
+  const clientPath = isRender 
+    ? path.join(__dirname, '../../client/build')
+    : path.join(__dirname, '../client/build');
+  
+  app.use(express.static(clientPath));
   
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+    res.sendFile(path.join(clientPath, 'index.html'));
   });
 }
 
