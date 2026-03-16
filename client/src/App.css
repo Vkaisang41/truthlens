@@ -1,5 +1,6 @@
 /* TruthLens App Styles */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
 
 * {
   margin: 0;
@@ -332,6 +333,24 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  position: relative;
+}
+
+/* Cyber scan line effect on logo */
+.logo h1::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--primary-color), #8b5cf6, transparent);
+  animation: scanLine 2s linear infinite;
+}
+
+@keyframes scanLine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .tagline {
@@ -408,16 +427,49 @@
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scanning effect on button */
+.analyze-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.analyze-btn:hover::before {
+  left: 100%;
 }
 
 .analyze-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
 }
 
 .analyze-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+/* Pulsing radar while loading */
+.analyze-btn.scanning {
+  animation: buttonPulse 1s infinite;
+}
+
+@keyframes buttonPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  50% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
 }
 
 .loading {
@@ -476,12 +528,89 @@
   justify-content: center;
   background: var(--card-bg);
   box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scanning radar effect */
+.score-circle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: scanRadar 1.5s ease-in-out;
+}
+
+@keyframes scanRadar {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Pulse effect for high scores */
+.score-circle.high-score {
+  animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
+}
+
+/* Warning pulse for low scores */
+.score-circle.low-score {
+  animation: shakeRed 0.5s ease-in-out;
+}
+
+@keyframes shakeRed {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-10px); }
+  80% { transform: translateX(10px); }
+}
+
+/* Glow effect */
+.score-circle.glowing {
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 10px var(--primary-color); }
+  to { box-shadow: 0 0 30px var(--primary-color), 0 0 60px var(--primary-color); }
 }
 
 .score-value {
   font-size: 4rem;
   font-weight: 700;
   line-height: 1;
+  font-family: 'Orbitron', sans-serif;
+  text-shadow: 0 0 20px currentColor;
+}
+
+.score-value.animate {
+  animation: scoreReveal 1s ease-out;
+}
+
+@keyframes scoreReveal {
+  0% { 
+    transform: scale(0); 
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% { 
+    transform: scale(1); 
+    opacity: 1;
+  }
 }
 
 .score-label {
