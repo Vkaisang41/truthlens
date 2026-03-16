@@ -4,6 +4,52 @@ import './App.css';
 // API URL - defaults to localhost in development
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
+// Sample news headlines by category
+const SAMPLE_NEWS = {
+  politics: [
+    "President announces new economic policy for 2025",
+    "Senate passes controversial healthcare bill",
+    "Election results show unexpected turn in swing states",
+    "Political scandal emerges involving senior officials",
+    "New trade agreement signed between major nations"
+  ],
+  football: [
+    "Champions League final scheduled for June",
+    "Star player transfers to rival club in record deal",
+    "National team announces squad for upcoming tournament",
+    "Controversial refereeing decision sparks debate",
+    "Legendary coach announces retirement after successful career"
+  ],
+  technology: [
+    "Tech giant unveils revolutionary AI assistant",
+    "Major security breach affects millions of users",
+    "New smartphone features groundbreaking battery technology",
+    "Startup raises billions in latest funding round",
+    "Scientists develop quantum computer breakthrough"
+  ],
+  business: [
+    "Stock market reaches all-time high",
+    "Major company announces massive layoffs",
+    "Central bank adjusts interest rates",
+    "Merger between industry giants approved",
+    "Entrepreneur becomes youngest billionaire"
+  ],
+  health: [
+    "New study reveals benefits of daily exercise",
+    "Breakthrough treatment shows promise for cancer patients",
+    "Health officials warn about seasonal illness",
+    "Mental health awareness campaign launches nationwide",
+    "Scientists discover new vaccine for rare disease"
+  ],
+  entertainment: [
+    "Blockbuster movie breaks box office records",
+    "Award-winning singer announces world tour",
+    "Streaming platform reveals hit series renewal",
+    "Celebrity couple confirms relationship at event",
+    "Classic band reunites for anniversary tour"
+  ]
+};
+
 function App() {
   const [headline, setHeadline] = useState('');
   const [result, setResult] = useState(null);
@@ -18,6 +64,8 @@ function App() {
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef(null);
+  const [showNews, setShowNews] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('politics');
 
   const scrollToChat = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -301,6 +349,50 @@ function App() {
               </div>
             </section>
           )}
+
+          <section className="news-section">
+            <div className="news-header">
+              <h2>Sample News Headlines</h2>
+              <button 
+                className="news-toggle"
+                onClick={() => setShowNews(!showNews)}
+              >
+                {showNews ? 'Hide News' : 'Show News'}
+              </button>
+            </div>
+            
+            {showNews && (
+              <div className="news-categories">
+                <div className="category-tabs">
+                  {Object.keys(SAMPLE_NEWS).map(cat => (
+                    <button
+                      key={cat}
+                      className={`category-tab ${selectedCategory === cat ? 'active' : ''}`}
+                      onClick={() => setSelectedCategory(cat)}
+                    >
+                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </button>
+                  ))}
+                </div>
+                
+                <div className="news-list">
+                  {SAMPLE_NEWS[selectedCategory].map((news, index) => (
+                    <div 
+                      key={index} 
+                      className="news-item"
+                      onClick={() => {
+                        setHeadline(news);
+                        analyzeHeadline();
+                      }}
+                    >
+                      <span className="news-text">{news}</span>
+                      <span className="analyze-hint">Click to analyze</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
 
           <section className="features-section">
             <h2>How It Works</h2>
