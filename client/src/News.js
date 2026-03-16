@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './News.css';
 
 // API URL
@@ -107,7 +108,11 @@ function News({ onAnalyze }) {
       });
       
       const data = await res.json();
-      onAnalyze(data, headline);
+      if (onAnalyze) {
+        onAnalyze(data, headline);
+      } else {
+        alert(`Analysis: ${data.credibilityScore}% - ${data.credibilityScore >= 80 ? 'Likely Credible' : data.credibilityScore >= 50 ? 'Moderate Risk' : 'Likely Fake'}`);
+      }
     } catch (err) {
       console.error('Analysis failed:', err);
     } finally {
@@ -117,6 +122,7 @@ function News({ onAnalyze }) {
 
   return (
     <div className="news-page">
+      <Link to="/" className="back-link">&larr; Back to Analyzer</Link>
       <div className="news-hero">
         <h1>News Categories</h1>
         <p>Browse headlines by category and analyze them for credibility</p>

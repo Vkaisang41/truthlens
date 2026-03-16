@@ -2,6 +2,24 @@
 .news-page {
   min-height: 100vh;
   padding-bottom: 40px;
+  position: relative;
+}
+
+.back-link {
+  display: inline-block;
+  margin: 20px;
+  color: var(--primary-color, #6366f1);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.back-link:hover {
+  background: var(--primary-color, #6366f1);
+  color: white;
 }
 
 .news-hero {
