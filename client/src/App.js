@@ -246,6 +246,26 @@ function App() {
                 </div>
               </div>
 
+              {/* Detailed Proof Section */}
+              {result.proof && result.proof.length > 0 && (
+                <div className="proof-section">
+                  <h3>Detailed Evidence</h3>
+                  <p className="proof-intro">Here is why this headline may be unreliable:</p>
+                  <div className="proof-list">
+                    {result.proof.map((item, index) => (
+                      <div key={index} className={`proof-item ${item.severity}`}>
+                        <div className="proof-header">
+                          <span className={`severity-badge ${item.severity}`}>{item.severity}</span>
+                          <span className="proof-type">{item.type}</span>
+                        </div>
+                        <div className="proof-issue">{item.issue}</div>
+                        <div className="proof-explanation">{item.explanation}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="headline-display">
                 <strong>Original Headline:</strong>
                 <p>"{result.headline}"</p>

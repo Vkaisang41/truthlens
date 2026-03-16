@@ -51,12 +51,19 @@ const EMOTIONAL_TRIGGERS = {
 function analyzeHeadlineBasic(headline) {
   const issues = [];
   const emotions = [];
+  const proof = []; // Detailed proof for each issue
   const lowerHeadline = headline.toLowerCase();
   
   // Check for clickbait words
   CLICKBAIT_WORDS.forEach(word => {
     if (lowerHeadline.includes(word)) {
       issues.push(`Clickbait phrase detected: "${word}"`);
+      proof.push({
+        type: 'clickbait',
+        issue: `Clickbait word: "${word}"`,
+        explanation: `The word "${word}" is commonly used in sensationalist or misleading headlines to attract clicks. Legitimate news rarely uses such words.`,
+        severity: 'high'
+      });
     }
   });
   
@@ -66,39 +73,100 @@ function analyzeHeadlineBasic(headline) {
       if (lowerHeadline.includes(trigger)) {
         emotions.push(emotion);
         issues.push(`Emotional manipulation: ${emotion} (trigger: "${trigger}")`);
+        proof.push({
+          type: 'emotional',
+          issue: `Emotional trigger: ${emotion}`,
+          explanation: `The word "${trigger}" triggers ${emotion} emotions. Fake news often uses emotional words to manipulate readers into sharing without verifying.`,
+          severity: 'high'
+        });
       }
     });
   });
   
-  // Check for lack of source - flag regardless of other issues
-  if (!headline.match(/\b(according to|reported|study|research|official|from|by|said|says|announced|confirmed|published|journal|university|college)\b/i)) {
+  // Check for lack of source
+  const hasSource = headline.match(/\b(according to|reported|study|research|official|from|by|said|says|announced|confirmed|published|journal|university|college)\b/i);
+  if (!hasSource) {
     issues.push("No credible source cited");
+    proof.push({
+      type: 'source',
+      issue: 'Missing source attribution',
+      explanation: 'This headline does not cite any credible source like a study, official statement, or recognized news outlet. Without a source, the information cannot be verified.',
+      severity: 'high'
+    });
   }
   
   // Check for all caps (sensationalism)
   if (headline === headline.toUpperCase() && headline.length > 10) {
     issues.push("Sensationalist capitalization detected");
+    proof.push({
+      type: 'formatting',
+      issue: 'ALL CAPS usage',
+      explanation: 'Using all capital letters is a common tactic in fake news to create urgency and excitement. Professional news outlets rarely use this format.',
+      severity: 'medium'
+    });
   }
   
   // Check for excessive punctuation
   if (headline.match(/[!]{2,}|[?]{2,}|[...]{2,}/)) {
     issues.push("Excessive punctuation detected");
+    proof.push({
+      type: 'formatting',
+      issue: 'Excessive punctuation',
+      explanation: 'Multiple exclamation marks or question marks are clickbait tactics to create false urgency. Legitimate news uses standard punctuation.',
+      severity: 'medium'
+    });
   }
   
   // Check for question marks in suspicious contexts
   if (headline.includes('?') && lowerHeadline.includes('you')) {
     issues.push("Leading question detected - common in clickbait");
+    proof.push({
+      type: 'clickbait',
+      issue: 'Leading question format',
+      explanation: 'Questions like "You won\'t believe..." or "What happened next?" are designed to spark curiosity and encourage clicking without providing real information.',
+      severity: 'medium'
+    });
   }
   
-  // Check for absolute words (often indicate fake news)
+  // Check for absolute words
   const absoluteWords = ['always', 'never', 'everyone', 'nobody', 'all', 'none', '100%', 'guaranteed'];
   absoluteWords.forEach(word => {
     if (lowerHeadline.includes(word)) {
       issues.push(`Absolute word detected: "${word}" - often indicates unreliable content`);
+      proof.push({
+        type: 'language',
+        issue: `Absolute claim: "${word}"`,
+        explanation: `The word "${word}" makes an absolute claim. In reality, very few things are always true or never true. Such words often indicate misinformation.`,
+        severity: 'medium'
+      });
     }
   });
   
-  return { issues, emotions };
+  // Check for URL/links in headline (if present)
+  if (lowerHeadline.includes('http') || lowerHeadline.includes('www.')) {
+    proof.push({
+      type: 'formatting',
+      issue: 'URL in headline',
+      explanation: 'Headlines should summarize news, not include raw URLs. This is common in spam and fake news.',
+      severity: 'low'
+    });
+  }
+  
+  // Check for unverified claims
+  const unverifiedClaims = ['exposed', 'leaked', 'secret', 'undercover', 'revealed truth', 'conspiracy'];
+  unverifiedClaims.forEach(word => {
+    if (lowerHeadline.includes(word)) {
+      issues.push(`Unverified claim: "${word}"`);
+      proof.push({
+        type: 'claim',
+        issue: `Unverified claim: "${word}"`,
+        explanation: `Claims about "exposed", "leaked", or "secret" information are often fabricated. Real whistleblowers go through proper channels.`,
+        severity: 'high'
+      });
+    }
+  });
+  
+  return { issues, emotions, proof };
 }
 
 // Main analyze endpoint
@@ -117,7 +185,7 @@ app.post("/analyze", async (req, res) => {
   
   try {
     // First do basic pattern analysis
-    const { issues: basicIssues, emotions: basicEmotions } = analyzeHeadlineBasic(headline);
+    const { issues: basicIssues, emotions: basicEmotions, proof: basicProof } = analyzeHeadlineBasic(headline);
     
     // Try AI analysis if API key is available
     let aiAnalysis = null;
@@ -196,10 +264,19 @@ app.post("/analyze", async (req, res) => {
     // Ensure score is within bounds
     credibilityScore = Math.max(0, Math.min(100, credibilityScore));
     
+    // Get detailed proof
+    let detailedProof = basicProof || [];
+    
+    // Add AI proof if available
+    if (aiAnalysis && aiAnalysis.proof) {
+      detailedProof = [...detailedProof, ...aiAnalysis.proof];
+    }
+    
     const result = {
       credibilityScore,
       issues,
       emotions,
+      proof: detailedProof,
       headline,
       analyzedAt: new Date().toISOString()
     };
