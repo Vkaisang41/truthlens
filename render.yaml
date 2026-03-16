@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: truthlens-api
+    env: node
+    region: oregon
+    buildCommand: cd server && npm install && npm start
+    startCommand: cd server && npm start
+    repo: https://github.com/Vkaisang41/truthlens
+    branch: master
